@@ -53,6 +53,9 @@ namespace WebSync
 
         private void RefreshInternal(string debuggerUrl)
         {
+            if (string.IsNullOrEmpty(debuggerUrl))
+                return;
+
             ClientWebSocket connection = new ClientWebSocket();
             connection.ConnectAsync(new Uri(debuggerUrl), _token).Wait();
 

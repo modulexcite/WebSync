@@ -5,7 +5,6 @@
 *.exe
 *.ilk
 *.lib
-*.lib
 *.log
 *.ncb
 *.obj
@@ -21,12 +20,13 @@
 *.vspscc
 *_i.c
 *_p.c
+*.lock
 [Bb]in
 [Db]ebug
 obj
 [Rr]elease
 _ReSharper*
-[Tt]est[Rr]esult*
+[Tt]est[Rr]esults
 [Bb]uild[Ll]og.*
 [Pp]ublish.xml
 sql
@@ -35,3 +35,6 @@ PrecompiledWeb
 connectionStrings.config
 *.sass-cache
 ipch
+packages
+/*.opensdf
+FakesAssemblies
