@@ -16,7 +16,7 @@ namespace WebSync
     /// </remarks>
     public class Program
     {
-        private const int IdleIntervalMilliseconds = 1500;
+        private const int IdleIntervalMilliseconds = 1000;
 
         private static CompositeFileSystemWatcher _watcher;
 
@@ -33,7 +33,7 @@ namespace WebSync
         public static void Main(string[] args)
         {
             Console.WriteLine("WebSync Utility by Sergey Rybalkin");
-            Console.WriteLine("Reloads local site in Google Chrome every time changes are made to it.");
+            Console.WriteLine("Reloads local website in Google Chrome every time changes are made to it.");
 
             _workingDirectory = Environment.CurrentDirectory;
 
@@ -41,9 +41,12 @@ namespace WebSync
 
             SetupDirectoryWatcher();
 
-            Console.WriteLine("Type q to quit...");
-            while (Console.Read() != 'q')
+            Console.WriteLine("Type [r] to refresh manually, [q] to quit...");
+            int cmd;
+            while ((cmd = Console.Read()) != 'q')
             {
+                if ('r' == cmd)
+                    OnChanged();
             }
 
             CleanupResources();
@@ -84,6 +87,8 @@ namespace WebSync
                 try
                 {
                     _browserController.Refresh();
+
+                    Trace.TraceInformation("Browser refresh completed successfully.");
                 }
                 catch (WebException ex)
                 {

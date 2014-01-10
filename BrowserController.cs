@@ -81,8 +81,8 @@ namespace WebSync
         }
 
         /// <summary>
-        /// Returns list of web socket debugger urls for all browser tabs that have page from the specified
-        /// host opened.
+        /// Returns the list of web socket debugger urls for all browser tabs that have page from the
+        /// specified host opened.
         /// </summary>
         private IEnumerable<string> GetDebuggerUrlsForMatchingTabs()
         {
