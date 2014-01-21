@@ -10,9 +10,9 @@ namespace WebSync
     /// </summary>
     internal class CompositeFileSystemWatcher : IDisposable
     {
-        private static object _syncObj = new object();
+        private static readonly object _syncObj = new object();
 
-        private readonly Action _callback;
+        private readonly Action<string, WatcherChangeTypes> _callback;
 
         private List<FileSystemWatcher> _watchers;
 
@@ -20,13 +20,14 @@ namespace WebSync
         /// Initializes a new instance of the <see cref="CompositeFileSystemWatcher"/> class.
         /// </summary>
         /// <param name="config">
-        /// Configuration options for wrapped file system wathers where key is full path to the watch
+        /// Configuration options for wrapped file system watchers where key is full path to the watch
         /// directory and value is files filter.
         /// </param>
         /// <param name="callback">
         /// The callback to invoke when change occurs.
         /// </param>
-        internal CompositeFileSystemWatcher(IDictionary<string, string> config, Action callback)
+        internal CompositeFileSystemWatcher(IDictionary<string, string> config,
+                                            Action<string, WatcherChangeTypes> callback)
         {
             _callback = callback;
             _watchers = new List<FileSystemWatcher>(config.Count);
@@ -39,7 +40,6 @@ namespace WebSync
                                        NotifyFilters.FileName |
                                        NotifyFilters.DirectoryName;
                 watcher.Created += OnChanged;
-                watcher.Deleted += OnChanged;
                 watcher.Changed += OnChanged;
                 watcher.Renamed += OnChanged;
                 _watchers.Add(watcher);
@@ -63,7 +63,7 @@ namespace WebSync
         /// <summary>
         /// Begins monitoring file system for changes.
         /// </summary>
-        /// <exception cref="System.ObjectDisposedException">
+        /// <exception cref="ObjectDisposedException">
         /// Indicates that object has already been disposed and cannot be used.
         /// </exception>
         internal void BeginMonitoring()
@@ -72,19 +72,17 @@ namespace WebSync
                 throw new ObjectDisposedException("FileSystemWatcher");
 
             foreach (var watcher in _watchers)
-            {
                 watcher.EnableRaisingEvents = true;
-            }
         }
 
-        private void OnChanged(object sender, EventArgs eventArgs)
+        private void OnChanged(object sender, FileSystemEventArgs args)
         {
             if (!Monitor.TryEnter(_syncObj))
                 return;
 
             try
             {
-                _callback();
+                _callback(args.Name, args.ChangeType);
             }
             finally
             {

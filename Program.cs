@@ -16,7 +16,8 @@ namespace WebSync
     /// </remarks>
     public class Program
     {
-        private const int IdleIntervalMilliseconds = 1000;
+        // Amount of time to skip monitoring after event fired
+        private const int IdleIntervalMilliseconds = 300;
 
         private static CompositeFileSystemWatcher _watcher;
 
@@ -35,21 +36,41 @@ namespace WebSync
             Console.WriteLine("WebSync Utility by Sergey Rybalkin");
             Console.WriteLine("Reloads local website in Google Chrome every time changes are made to it.");
 
-            _workingDirectory = Environment.CurrentDirectory;
+            if (args.Length == 0)
+                _workingDirectory = ScanFolders(Environment.CurrentDirectory) ?? Environment.CurrentDirectory;
+            else
+                _workingDirectory = args[0];
 
             _browserController = new BrowserController();
 
             SetupDirectoryWatcher();
 
-            Console.WriteLine("Type [r] to refresh manually, [q] to quit...");
+            Console.WriteLine("Type [r] to refresh manually, [c] to compile, [q] to quit...");
             int cmd;
             while ((cmd = Console.Read()) != 'q')
             {
                 if ('r' == cmd)
-                    OnChanged();
+                    OnChanged(string.Empty, WatcherChangeTypes.All);
+                else if ('c' == cmd)
+                    RunCompass();
             }
 
             CleanupResources();
+        }
+
+        private static string ScanFolders(string start)
+        {
+            if (File.Exists(Path.Combine(start, "web.config")))
+                return start;
+
+            if (File.Exists(Path.Combine(start, "Web", "web.config")))
+                return Path.Combine(start, "Web");
+
+            var parent = Directory.GetParent(start);
+            if (null == parent)
+                return null;
+
+            return ScanFolders(parent.FullName);
         }
 
         private static void CleanupResources()
@@ -64,7 +85,7 @@ namespace WebSync
         private static void SetupDirectoryWatcher()
         {
             Dictionary<string, string> config = new Dictionary<string, string>();
-            config.Add(Path.Combine(_workingDirectory, @"css"), @"*.css");
+            config.Add(Path.Combine(_workingDirectory, @"css"), @"*.scss");
             config.Add(Path.Combine(_workingDirectory, @"js"), @"*.js");
             config.Add(Path.Combine(_workingDirectory, @"Views"), @"*.cshtml");
 
@@ -74,9 +95,16 @@ namespace WebSync
             Trace.TraceInformation("WebSync started watching for changes in {0}", _workingDirectory);
         }
 
-        private static void OnChanged()
+        private static void OnChanged(string objectName, WatcherChangeTypes watcherChangeTypes)
         {
             DateTime now = DateTime.Now;
+
+            Trace.TraceInformation("Notification of type {0} received for {1}",
+                                   watcherChangeTypes,
+                                   objectName);
+
+            if (objectName.EndsWith(".scss"))
+                RunCompass();
 
             if ((now - _lastReloadTime) > TimeSpan.FromMilliseconds(IdleIntervalMilliseconds))
             {
@@ -88,17 +116,34 @@ namespace WebSync
                 {
                     _browserController.Refresh();
 
-                    Trace.TraceInformation("Browser refresh completed successfully.");
+                    Trace.TraceInformation("Browser refresh completed successfully.\n");
                 }
                 catch (WebException ex)
                 {
-                    Trace.TraceError("Could not connect to the browser: {0}", ex);
+                    Trace.TraceError("Could not connect to the browser: {0}\n", ex);
                 }
             }
             else
+                Trace.TraceInformation("Skipped browser refresh due to frequency rules.\n");
+        }
+
+        private static void RunCompass()
+        {
+            Trace.TraceInformation("Running compass to compile changes");
+
+            ProcessStartInfo startInfo = new ProcessStartInfo("compass.bat");
+            startInfo.Arguments = string.Format("compile \"{0}\" --sourcemap",
+                                                _workingDirectory.Replace('\\', '/'));
+            startInfo.CreateNoWindow = true;
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            Process proc = Process.Start(startInfo);
+            if (null != proc)
             {
-                Trace.TraceInformation("Skipped browser refresh due to frequency rules.");
+                proc.WaitForExit();
+                Trace.TraceInformation("Compass exited with code {0}", proc.ExitCode);
             }
+            else
+                Trace.TraceWarning("Compass executable not found");
         }
     }
 }
