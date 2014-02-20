@@ -25,7 +25,7 @@ namespace WebSync
 
         private static DateTime _lastReloadTime = DateTime.MinValue;
 
-        private static BrowserController _browserController;
+        private static ProjectChangeHandler _chain;
 
         /// <summary>
         /// Application entry point.
@@ -41,18 +41,23 @@ namespace WebSync
             else
                 _workingDirectory = args[0];
 
-            _browserController = new BrowserController();
-
             SetupDirectoryWatcher();
 
-            Console.WriteLine("Type [r] to refresh manually, [c] to compile, [q] to quit...");
+            TypeScriptChangeHandler tsHandler = new TypeScriptChangeHandler(
+                Path.Combine(_workingDirectory, "Web.csproj"));
+            SassChangeHandler sassHandler = new SassChangeHandler(_workingDirectory);
+            tsHandler.SetNext(sassHandler);
+            DefaultChangeHandler defaultHandler = new DefaultChangeHandler();
+            sassHandler.SetNext(defaultHandler);
+
+            _chain = tsHandler;
+
+            Console.WriteLine("Type [r] to refresh manually, [q] to quit...");
             int cmd;
             while ((cmd = Console.Read()) != 'q')
             {
                 if ('r' == cmd)
                     OnChanged(string.Empty, WatcherChangeTypes.All);
-                else if ('c' == cmd)
-                    RunCompass();
             }
 
             CleanupResources();
@@ -86,7 +91,7 @@ namespace WebSync
         {
             Dictionary<string, string> config = new Dictionary<string, string>();
             config.Add(Path.Combine(_workingDirectory, @"css"), @"*.scss");
-            config.Add(Path.Combine(_workingDirectory, @"js"), @"*.js");
+            config.Add(Path.Combine(_workingDirectory, @"js"), @"*.js,*.ts");
             config.Add(Path.Combine(_workingDirectory, @"Views"), @"*.cshtml");
 
             _watcher = new CompositeFileSystemWatcher(config, OnChanged);
@@ -95,16 +100,13 @@ namespace WebSync
             Trace.TraceInformation("WebSync started watching for changes in {0}", _workingDirectory);
         }
 
-        private static void OnChanged(string objectName, WatcherChangeTypes watcherChangeTypes)
+        private static void OnChanged(string objectName, WatcherChangeTypes changeType)
         {
             DateTime now = DateTime.Now;
 
             Trace.TraceInformation("Notification of type {0} received for {1}",
-                                   watcherChangeTypes,
+                                   changeType,
                                    objectName);
-
-            if (objectName.EndsWith(".scss"))
-                RunCompass();
 
             if ((now - _lastReloadTime) > TimeSpan.FromMilliseconds(IdleIntervalMilliseconds))
             {
@@ -114,7 +116,7 @@ namespace WebSync
 
                 try
                 {
-                    _browserController.Refresh();
+                    _chain.HandleChange(objectName, changeType);
 
                     Trace.TraceInformation("Browser refresh completed successfully.\n");
                 }
@@ -125,25 +127,6 @@ namespace WebSync
             }
             else
                 Trace.TraceInformation("Skipped browser refresh due to frequency rules.\n");
-        }
-
-        private static void RunCompass()
-        {
-            Trace.TraceInformation("Running compass to compile changes");
-
-            ProcessStartInfo startInfo = new ProcessStartInfo("compass.bat");
-            startInfo.Arguments = string.Format("compile \"{0}\" --sourcemap",
-                                                _workingDirectory.Replace('\\', '/'));
-            startInfo.CreateNoWindow = true;
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            Process proc = Process.Start(startInfo);
-            if (null != proc)
-            {
-                proc.WaitForExit();
-                Trace.TraceInformation("Compass exited with code {0}", proc.ExitCode);
-            }
-            else
-                Trace.TraceWarning("Compass executable not found");
         }
     }
 }

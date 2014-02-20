@@ -48,10 +48,14 @@
     <Compile Include="BrowserTabState.cs" />
     <Compile Include="CompositeFileSystemWatcher.cs" />
     <Compile Include="DebugProtocolResponse.cs" />
+    <Compile Include="DefaultChangeHandler.cs" />
     <Compile Include="PageReloadRequest.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="ProjectChangeHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DebugProtocolRequestBase.cs" />
+    <Compile Include="SassChangeHandler.cs" />
+    <Compile Include="TypeScriptChangeHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
