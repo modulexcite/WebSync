@@ -34,7 +34,7 @@ namespace WebSync
 
             foreach (KeyValuePair<string, string> pair in config)
             {
-                FileSystemWatcher watcher = new FileSystemWatcher(pair.Key, pair.Value);
+                FileSystemWatcher watcher = new FileSystemWatcher(pair.Value, pair.Key);
                 watcher.IncludeSubdirectories = true;
                 watcher.NotifyFilter = NotifyFilters.LastWrite |
                                        NotifyFilters.FileName |

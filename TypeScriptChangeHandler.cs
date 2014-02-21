@@ -13,7 +13,7 @@ namespace WebSync
         /// <param name="projectFilePath">
         /// Full path to the visual studio project file that contains type script files.
         /// </param>
-        internal TypeScriptChangeHandler(string projectFilePath) : base("*.ts")
+        internal TypeScriptChangeHandler(string projectFilePath) : base(".ts")
         {
             _projectFilePath = projectFilePath;
         }

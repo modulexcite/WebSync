@@ -27,8 +27,8 @@ namespace WebSync
 
         internal void HandleChange(string objectName, WatcherChangeTypes changeType)
         {
-            if (!string.IsNullOrEmpty(TargetExtension) &&
-                objectName.EndsWith(objectName, StringComparison.InvariantCultureIgnoreCase))
+            if (string.IsNullOrEmpty(TargetExtension) ||
+                objectName.EndsWith(TargetExtension, StringComparison.InvariantCultureIgnoreCase))
             {
                 bool handled = HandleChangeInternal(objectName, changeType);
                 if (handled)

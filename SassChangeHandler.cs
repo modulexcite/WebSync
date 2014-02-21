@@ -13,7 +13,7 @@ namespace WebSync
         /// <param name="workingDirectory">
         /// Full path to the directory where config.rb file is located.
         /// </param>
-        internal SassChangeHandler(string workingDirectory) : base("*.scss")
+        internal SassChangeHandler(string workingDirectory) : base(".scss")
         {
             _workingDirectory = workingDirectory;
         }

@@ -33,7 +33,7 @@ namespace WebSync
         /// <param name="args">Command line parameters.</param>
         public static void Main(string[] args)
         {
-            Console.WriteLine("WebSync Utility by Sergey Rybalkin");
+            Console.WriteLine("WebSync Utility");
             Console.WriteLine("Reloads local website in Google Chrome every time changes are made to it.");
 
             if (args.Length == 0)
@@ -43,6 +43,21 @@ namespace WebSync
 
             SetupDirectoryWatcher();
 
+            SetupHandlersChain();
+
+            Console.WriteLine("Type [r] to refresh manually, [q] to quit...");
+            int command;
+            while ((command = Console.Read()) != 'q')
+            {
+                if ('r' == command)
+                    OnChanged(string.Empty, WatcherChangeTypes.All);
+            }
+
+            CleanupResources();
+        }
+
+        private static void SetupHandlersChain()
+        {
             TypeScriptChangeHandler tsHandler = new TypeScriptChangeHandler(
                 Path.Combine(_workingDirectory, "Web.csproj"));
             SassChangeHandler sassHandler = new SassChangeHandler(_workingDirectory);
@@ -51,16 +66,6 @@ namespace WebSync
             sassHandler.SetNext(defaultHandler);
 
             _chain = tsHandler;
-
-            Console.WriteLine("Type [r] to refresh manually, [q] to quit...");
-            int cmd;
-            while ((cmd = Console.Read()) != 'q')
-            {
-                if ('r' == cmd)
-                    OnChanged(string.Empty, WatcherChangeTypes.All);
-            }
-
-            CleanupResources();
         }
 
         private static string ScanFolders(string start)
@@ -90,9 +95,10 @@ namespace WebSync
         private static void SetupDirectoryWatcher()
         {
             Dictionary<string, string> config = new Dictionary<string, string>();
-            config.Add(Path.Combine(_workingDirectory, @"css"), @"*.scss");
-            config.Add(Path.Combine(_workingDirectory, @"js"), @"*.js,*.ts");
-            config.Add(Path.Combine(_workingDirectory, @"Views"), @"*.cshtml");
+            config.Add(@"*.scss", Path.Combine(_workingDirectory, @"css"));
+            config.Add(@"*.js", Path.Combine(_workingDirectory, @"js"));
+            config.Add(@"*.ts", Path.Combine(_workingDirectory, @"js"));
+            config.Add(@"*.cshtml", Path.Combine(_workingDirectory, @"Views"));
 
             _watcher = new CompositeFileSystemWatcher(config, OnChanged);
             _watcher.BeginMonitoring();
