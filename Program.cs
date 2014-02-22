@@ -58,6 +58,7 @@ namespace WebSync
 
         private static void SetupHandlersChain()
         {
+            // Using chain of responsibility pattern to manage change notification handlers.
             TypeScriptChangeHandler tsHandler = new TypeScriptChangeHandler(
                 Path.Combine(_workingDirectory, "Web.csproj"));
             SassChangeHandler sassHandler = new SassChangeHandler(_workingDirectory);

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace WebSync
@@ -32,6 +33,8 @@ namespace WebSync
             {
                 proc.WaitForExit();
                 Trace.TraceInformation("Compass exited with code {0}", proc.ExitCode);
+                if (proc.ExitCode != 0)
+                    Console.Beep();
             }
             else
                 Trace.TraceWarning("Compass executable not found");
