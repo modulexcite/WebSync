@@ -5,6 +5,7 @@ Console utility that automatically refreshes Google Chrome tabs with your local 
 Description: Watches for changes in the specified directory and reloads browser tab.
 
 Usage: WebSync watch [-dir] [-domain] [-sass] [-typescript] [-idle]
+
     dir           Root directory of the project to monitor
     domain        Browser tabs domain to refresh
     sass          Enable instant SASS compilation
