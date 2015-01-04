@@ -1,4 +1,4 @@
-﻿namespace WebSync
+﻿namespace WebSync.Browser
 {
     /// <summary>
     /// Contains information required to send a Page.reload request.

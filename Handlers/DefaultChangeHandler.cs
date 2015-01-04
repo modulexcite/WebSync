@@ -1,8 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Net;
 
-namespace WebSync
+namespace WebSync.Handlers
 {
     internal class DefaultChangeHandler : ProjectChangeHandler
     {
@@ -17,16 +16,7 @@ namespace WebSync
         {
             Trace.TraceInformation("Refreshing browser due to the change notification.");
 
-            try
-            {
-                RefreshBrowser();
-
-                Trace.TraceInformation("Browser refresh completed successfully.\n");
-            }
-            catch (WebException ex)
-            {
-                Trace.TraceError("Could not connect to the browser: {0}\n", ex);
-            }
+            RefreshBrowser();
 
             return true;
         }

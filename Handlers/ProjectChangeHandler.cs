@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
+using WebSync.Browser;
 
-namespace WebSync
+namespace WebSync.Handlers
 {
     internal abstract class ProjectChangeHandler
     {
-        private static readonly BrowserController _browserController = new BrowserController();
+        private static BrowserController _browserController;
 
         private ProjectChangeHandler _next;
 
@@ -18,7 +19,15 @@ namespace WebSync
             TargetExtension = targetExtension;
         }
 
-        public string TargetExtension { get; protected set; }
+        internal string TargetExtension { get; set; }
+
+        internal static void Initialize(string domain)
+        {
+            if (!domain.StartsWith("http"))
+                domain = "http://" + domain;
+
+            _browserController = new BrowserController(domain);
+        }
 
         internal void SetNext(ProjectChangeHandler next)
         {

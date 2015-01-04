@@ -11,6 +11,8 @@
     <AssemblyName>WebSync</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">.\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Essential.Diagnostics">
+      <HintPath>packages\Essential.Diagnostics.1.2.501.0\lib\Essential.Diagnostics.dll</HintPath>
+    </Reference>
     <Reference Include="ServiceStack.Text">
       <HintPath>packages\ServiceStack.Text.3.9.42\lib\net35\ServiceStack.Text.dll</HintPath>
     </Reference>
@@ -44,18 +49,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BrowserController.cs" />
-    <Compile Include="BrowserTabState.cs" />
+    <Compile Include="AssemblyExtensions.cs" />
+    <Compile Include="Browser\BrowserController.cs" />
+    <Compile Include="Browser\BrowserTabState.cs" />
+    <Compile Include="CommandLine\ArgumentsTokenizer.cs" />
+    <Compile Include="CommandLine\CommandAttribute.cs" />
+    <Compile Include="CommandLine\CommandBuilder.cs" />
+    <Compile Include="CommandLine\CommandLineParser.cs" />
+    <Compile Include="CommandLine\CommandMetadata.cs" />
+    <Compile Include="CommandLine\CommandNotFoundExceptionArgs.cs" />
+    <Compile Include="CommandLine\EmptyAssemblyExceptionArgs.cs" />
+    <Compile Include="CommandLine\OptionAttribute.cs" />
+    <Compile Include="CommandLine\OptionMetadata.cs" />
+    <Compile Include="CommandLine\OptionsValidationExceptionArgs.cs" />
+    <Compile Include="CommandLine\OptionValue.cs" />
+    <Compile Include="Commands\WatchCommand.cs" />
     <Compile Include="CompositeFileSystemWatcher.cs" />
-    <Compile Include="DebugProtocolResponse.cs" />
-    <Compile Include="DefaultChangeHandler.cs" />
-    <Compile Include="PageReloadRequest.cs" />
+    <Compile Include="Browser\DebugProtocolResponse.cs" />
+    <Compile Include="Diagnostics\Exception.cs" />
+    <Compile Include="Diagnostics\ExceptionArgs.cs" />
+    <Compile Include="Handlers\DefaultChangeHandler.cs" />
+    <Compile Include="Browser\PageReloadRequest.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="ProjectChangeHandler.cs" />
+    <Compile Include="Handlers\ProjectChangeHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DebugProtocolRequestBase.cs" />
-    <Compile Include="SassChangeHandler.cs" />
-    <Compile Include="TypeScriptChangeHandler.cs" />
+    <Compile Include="Browser\DebugProtocolRequestBase.cs" />
+    <Compile Include="Handlers\SassChangeHandler.cs" />
+    <Compile Include="Handlers\TypeScriptChangeHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -68,6 +88,13 @@
     <PostBuildEvent>if $(ConfigurationName) == Release "C:\Program Files\Red Gate\SmartAssembly 6\SmartAssembly.com" /build $(ProjectDir)WebSync.saproj
 if $(ConfigurationName) == Release xcopy.exe $(TargetPath).config d:\bin\ /y</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ServiceStack.Text;
 
-namespace WebSync
+namespace WebSync.Browser
 {
     /// <summary>
     /// Encapsulates communication with the browser through the debugging protocol.
@@ -19,6 +19,7 @@ namespace WebSync
         private const int DefaultPort = 9222;
 
         private readonly CancellationToken _token;
+
         private readonly string _hostName;
 
         internal BrowserController(string hostName = @"http://localhost")
@@ -37,17 +38,7 @@ namespace WebSync
         {
             foreach (string debuggerUrl in GetDebuggerUrlsForMatchingTabs())
             {
-                Trace.TraceInformation("Trying to establish connection with debug tools on {0}", debuggerUrl);
-
-                try
-                {
-                    RefreshInternal(debuggerUrl);
-                }
-                catch (AggregateException ex)
-                {
-                    Trace.TraceError("Unexpected error occurred while trying to send reload request: {0}",
-                                     ex.InnerException);
-                }
+                RefreshInternal(debuggerUrl);
             }
         }
 

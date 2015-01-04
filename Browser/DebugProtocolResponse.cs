@@ -1,4 +1,4 @@
-﻿namespace WebSync
+﻿namespace WebSync.Browser
 {
     /// <summary>
     /// Represents response object that is received from the debugged browser.

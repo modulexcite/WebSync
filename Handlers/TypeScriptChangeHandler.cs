@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace WebSync
+namespace WebSync.Handlers
 {
     internal class TypeScriptChangeHandler : ProjectChangeHandler
     {

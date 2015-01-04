@@ -1,4 +1,4 @@
-﻿namespace WebSync
+﻿namespace WebSync.Browser
 {
     /// <summary>
     /// Base class for all browser debugging protocol requests.

@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace WebSync
+namespace WebSync.Handlers
 {
     internal class SassChangeHandler : ProjectChangeHandler
     {
@@ -24,7 +24,7 @@ namespace WebSync
             Trace.TraceInformation("Running compass to compile changes");
 
             ProcessStartInfo startInfo = new ProcessStartInfo("compass.bat");
-            startInfo.Arguments = string.Format("compile \"{0}\" --sourcemap",
+            startInfo.Arguments = string.Format("compile \"{0}\" --sourcemap --force",
                                                 _workingDirectory.Replace('\\', '/'));
             startInfo.CreateNoWindow = true;
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;

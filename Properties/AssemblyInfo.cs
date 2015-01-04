@@ -2,10 +2,10 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("WebSync")]
-[assembly: AssemblyDescription("Synronize local website in your browser with its files.")]
+[assembly: AssemblyDescription("Automatically refreshes browser window when website content changes.")]
 [assembly: AssemblyProduct("WebSync")]
-[assembly: AssemblyCopyright("Copyright ©  2013")]
+[assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: ComVisible(false)]
 [assembly: Guid("dc35f7e3-1940-46b6-a4ec-f4ea5c93122c")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyFileVersion("2.0.0.0")]
